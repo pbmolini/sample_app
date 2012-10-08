@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   include SessionsHelper
 
   before_filter :signed_in_user,  only: [:index, :edit, :update, :destroy]
+  before_filter :not_signed_in_user, only: [:create, :new]
   before_filter :correct_user,    only: [:edit, :update]
   before_filter :admin_user,      only: :destroy
 
@@ -29,7 +30,9 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    User.find(params[:id]).destroy
+    # User.find(params[:id]).destroy
+    user_to_destroy = User.find(params[:id])
+    user_to_destroy.destroy unless user_to_destroy.admin
     flash[:success] = "User destroyed."
     redirect_to users_url
   end
@@ -58,6 +61,12 @@ class UsersController < ApplicationController
       unless signed_in?
         store_location
         redirect_to signin_url, notice: "Please sign in." 
+      end
+    end
+
+    def not_signed_in_user
+      if signed_in?
+        redirect_to root_url
       end
     end
 
