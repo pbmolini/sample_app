@@ -12,6 +12,8 @@
 class User < ActiveRecord::Base
   attr_accessible :email, :name, :password, :password_confirmation
   has_secure_password
+  # Ensuring that a user’s microposts are destroyed along with the user
+  has_many :microposts, dependent: :destroy
 
 # Ensuring email uniqueness by downcasing the email attribute.
 	before_save { self.email.downcase! } # before_save { |user| user.email = email.downcase } 
@@ -24,6 +26,11 @@ class User < ActiveRecord::Base
   validates :password, presence: true, length: { minimum: 6 }
   validates :password_confirmation, presence: true
 
+  def feed
+    # This is preliminary. See "Following users" for the full implementation.
+    Micropost.where("user_id = ?", id)
+  end
+  
   private
 
     def create_remember_token
