@@ -68,6 +68,27 @@ describe "User pages" do
       it { should have_content(m2.content) }
       it { should have_content(user.microposts.count) }
     end
+
+    describe "micropost destruction" do
+    let(:other_user) { FactoryGirl.create(:user) }
+    let!(:m_x) { FactoryGirl.create(:micropost, user: other_user, content: "Baz") }
+
+    describe "as correct user" do
+      before do
+        sign_in user
+        visit root_path 
+      end
+
+      it "should be able to see delete link for its microposts" do
+        should have_link('delete', href: micropost_path(m1)) 
+      end
+
+      it "should not be able to see delete link for other user's micropost" do
+        should_not have_link('delete', href: micropost_path(m_x))
+      end
+
+    end
+  end
     
   end
   
